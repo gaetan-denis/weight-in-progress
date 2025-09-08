@@ -91,9 +91,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setPassword(string $password): static
     {
-        $this->password = $password;
-
-        return $this;
+        if (strlen($password) < 8) {
+            throw new \InvalidArgumentException('Le mot de passe doit contenir au moins 8 caractères.');
+        } elseif (strlen($password) > 255) {
+            throw new \InvalidArgumentException('Le mot de passe peut contnir au maximum 255 caractères.');
+        } else {
+            $this->password = $password;
+            return $this;
+        }
     }
 
     /**
@@ -102,7 +107,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __serialize(): array
     {
         $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
+        $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
 
         return $data;
     }
